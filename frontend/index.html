@@ -6,7 +6,7 @@
     <title>Gapless ABR Audio Player</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="icon" href="data:,">
     <style>
         body { font-family: system-ui, sans-serif; background: #121212; color: #ffffff; padding: 20px; }
         .dashboard { display: flex; gap: 20px; margin-bottom: 20px; }
@@ -23,7 +23,21 @@
 
     <h2>Gapless ABR Audio Player (Simulated Network)</h2>
     
-    <button id="startBtn">▶ Start Playback</button>
+    <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px;">
+        <button id="startBtn" style="padding: 10px 20px; cursor: pointer;">▶ Start Playback</button>
+            <label style="font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="realBandwidthToggle" style="width: 18px; height: 18px;"> 
+                    Enable Real Bandwidth Estimation
+            </label>
+    </div>
+
+    <div style="background: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+        <h3 style="color: white; margin-top: 0;">Upload New Audio</h3>
+        <input type="text" id="songNameInput" placeholder="Song Name (e.g., black_magic)" style="padding: 5px; margin-right: 10px;">
+        <input type="file" id="audioFileInput" accept="audio/*" style="color: white;">
+        <button onclick="uploadAndEncode()" style="padding: 6px 12px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Upload & Encode</button>
+        <p id="uploadStatus" style="color: #4ade80; font-weight: bold; margin-bottom: 0;"></p>
+    </div>
 
     <div class="dashboard">
         <div class="card">
@@ -34,14 +48,22 @@
             <h3>Currently Playing</h3>
             <div id="bitrateDisplay" class="value">Waiting...</div>
         </div>
+        <div class="card">
+            <h3>Session Performance (QoE)</h3>
+            <div style="font-size: 1.1rem; color: #cbd5e1; margin-top: 10px;">
+                Switches: <strong id="qoeSwitches" style="color: #60a5fa;">0</strong> <br>
+                Stalls: <strong id="qoeStalls" style="color: #f87171;">0</strong> <br>
+                Avg Bitrate: <strong id="qoeAvg" style="color: #4ade80;">0 kbps</strong>
+            </div>
+        </div>
     </div>
 
     <div class="card" style="margin-bottom: 20px; flex: none; width: 100%;">
-        <canvas id="bitrateChart" height="80"></canvas>
+        <canvas id="bitrateChart" height="200"></canvas>
     </div>
 
     <h3>Stream Log</h3>
     <div id="logContainer" class="log-container"></div>
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
 </body>
 </html>
