@@ -1,4 +1,3 @@
-// Add parameters so app.js can pass its variables into this file!
 export async function getChunkFilenameFromManifest(currentSongFolder, bitrate, index, parsedPlaylists) {
     if (!parsedPlaylists[bitrate]) {
         const response = await fetch(`/audio/${currentSongFolder}/${bitrate}k/playlist.m3u8`);

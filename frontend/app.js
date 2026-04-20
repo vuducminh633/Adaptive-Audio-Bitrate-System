@@ -3,7 +3,7 @@ import { updateGraph, logAndDisplay, logError, updateQoEDashboard } from './ui.j
 import { getChunkFilenameFromManifest, uploadAndEncode } from './network.js';
 
         
-// 1. COLD START FIX: Assume a terrible network (50kbps) to guarantee the first chunk plays instantly
+// a terrible network (50kbps) to guarantee the first chunk plays instantly
 let fakeBandwidth = 50; 
 let currentBitrate = 0;
 let chunkIndex = 0; 
@@ -84,7 +84,7 @@ async function fetchAndScheduleNextChunk() {
 
     const timeUntilQueueEmpty = nextPlayTime - audioCtx.currentTime;
     
-    // INCREASED BUFFER: Wait until queue has less than 8 seconds (holds 4 chunks safely)
+    // Wait until queue has less than 8 seconds 
     if (timeUntilQueueEmpty < 8) {
         const targetBitrate = calculateNextBitrate();
         const nextChunkFileName = await getChunkFilenameFromManifest(currentSongFolder, targetBitrate, chunkIndex, parsedPlaylists);
@@ -103,13 +103,12 @@ async function fetchAndScheduleNextChunk() {
             const controller = new AbortController();
             const signal = controller.signal;
 
-            // --- 1. THE WATCHDOG TIMER ---
             // If Chrome holds the request hostage for more than 2.5 seconds, KILL IT!
             const watchdogTimer = setTimeout(() => {
                 if (targetBitrate > AVAILABLE_BITRATES[0]) {
                     console.warn(`[WATCHDOG] Network frozen! Aborting ${targetBitrate}k chunk!`);
-                    fakeBandwidth = 50; // Instantly panic the global math!
-                    updateGraph(fakeBandwidth, currentBitrate); // Force graph to drop NOW
+                    fakeBandwidth = 50; 
+                    updateGraph(fakeBandwidth, currentBitrate); // Force graph to drop 
                     controller.abort(); 
                 }
             }, 2500);
@@ -148,7 +147,7 @@ async function fetchAndScheduleNextChunk() {
                 }
             }
 
-            // WE SURVIVED! The chunk downloaded successfully, so cancel the Watchdog.
+            // The chunk downloaded successfully, so cancel the Watchdog.
             clearTimeout(watchdogTimer);
 
             if (controller.signal.aborted) {
@@ -170,19 +169,19 @@ async function fetchAndScheduleNextChunk() {
             
             if (isRealBandwidthEnabled) {
                 let downloadTimeSeconds = (endTime - startTime) / 1000;
-                downloadTimeSeconds = Math.max(downloadTimeSeconds, 0.001); // Infinity bug fix
+                downloadTimeSeconds = Math.max(downloadTimeSeconds, 0.001); 
 
                 const fileSizeBits = exactFileSizeBytes * 8;
                 const calculatedKbps = Math.round((fileSizeBits / downloadTimeSeconds) / 1000);
 
-                // --- 2. INSTANT PANIC MATH ---
+                // --- INSTANT PANIC ---
                 if (fakeBandwidth === 50) { 
                     fakeBandwidth = calculatedKbps; 
                 } else if (calculatedKbps < fakeBandwidth) {
-                    // THE FIX: Drop instantly! Do not use the 80% history on a slow network.
+                    //Drop instantly! Do not use the 80% history on a slow network.
                     fakeBandwidth = calculatedKbps; 
                 } else {
-                    // CAUTIOUS RISE: Upgrade safely using history
+                    //Upgrade safely using history
                     fakeBandwidth = Math.round((fakeBandwidth * 0.8) + (calculatedKbps * 0.2)); 
                 }
 
